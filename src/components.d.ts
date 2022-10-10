@@ -7,8 +7,11 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    FwButton: typeof import('@funkwhale/vui')['FwButton']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
+    Line: typeof import('./components/tools/Line.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ToolLine: typeof import('./components/tools/ToolLine.vue')['default']
   }
 }
