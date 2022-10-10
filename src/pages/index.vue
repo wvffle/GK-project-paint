@@ -1,38 +1,80 @@
 <script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
+import { onMounted } from 'vue'
+import { mouseTarget } from '~/composables/mouse'
+import { useTools } from '~/composables/tools'
+import { svg as svgTarget } from '~/composables/svg'
+
+const svg = ref()
+onMounted(() => {
+  svgTarget.value = svg.value
+  mouseTarget.value = svg.value
+})
+
+const { tools, currentTool } = useTools()
+
+const mousemove = () => tools.get(currentTool.value)?.mousemove()
+const mousedown = () => tools.get(currentTool.value)?.mousedown()
+const mouseup = () => tools.get(currentTool.value)?.mouseup()
 </script>
 
 <template>
-  <div class="mb-4">
-    <a href="https://tauri.app/" target="_blank">
-      <img src="../../src-tauri/icons/icon.png" class="logo tauri" alt="Tauri logo">
-    </a>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo">
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="../assets/vue.svg" class="logo vue" alt="Vue logo">
-    </a>
-  </div>
-  <HelloWorld msg="Tauri + Vite + Vue" />
+  <main>
+    <aside>
+      <fw-button
+        v-for="tool of tools.keys()"
+        :key="tool"
+        :is-active="currentTool === tool"
+        secondary
+        @click="currentTool = tool"
+      >
+        <template v-if="tools.get(tool)?.icon">
+          <Component :is="tools.get(tool)?.icon" />
+        </template>
+        <template v-else>
+          {{ tool[0].toUpperCase() }}
+        </template>
+      </fw-button>
+    </aside>
+    <svg
+      ref="svg"
+      @mousemove="mousemove"
+      @mousedown="mousedown"
+      @mouseup="mouseup"
+    />
+  </main>
 </template>
 
-<style scoped>
-.logo {
-  display: inline-block;
-  height: 10em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: 0.2s;
+<style scoped lang="scss">
+aside {
+  gap: 1ch;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  padding: 1rem;
+  border-right: 1px solid var(--fw-gray-400);
+
+  > .funkwhale.button {
+    min-width: 0;
+    aspect-ratio: 1;
+    margin: 0;
+  }
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.tauri:hover {
-  filter: drop-shadow(0 0 2em #ffd500aa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+main {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  height: 100vh;
+
+  > svg {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+    stroke-width: 3px;
+    fill: none;
+
+    > rect,
+    > line {
+      cursor: grab;
+    }
+  }
 }
 </style>

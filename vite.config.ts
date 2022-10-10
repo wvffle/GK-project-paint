@@ -5,7 +5,9 @@ import Vue from '@vitejs/plugin-vue'
 import Pages from 'vite-plugin-pages'
 import Layouts from 'vite-plugin-vue-layouts'
 import Components from 'unplugin-vue-components/vite'
+import AutoImport from 'unplugin-auto-import/vite'
 import Unocss from 'unocss/vite'
+import Icons from 'unplugin-icons/vite'
 import Markdown from 'vite-plugin-vue-markdown'
 
 import LinkAttributes from 'markdown-it-link-attributes'
@@ -59,6 +61,26 @@ export default defineConfig({
       // allow auto import and register components used in markdown
       include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
       dts: 'src/components.d.ts',
+      resolvers: [
+        (name) => {
+          if (name.startsWith('Fw'))
+            return { name, from: '@funkwhale/vui' }
+        },
+      ],
+    }),
+
+    Icons({
+      compiler: 'vue3',
+    }),
+
+    // https://github.com/antfu/unplugin-auto-import
+    AutoImport({
+      imports: [
+        'vue',
+        'vue-router',
+        '@vueuse/core',
+      ],
+      dts: 'src/auto-imports.d.ts',
     }),
 
     // https://github.com/antfu/unocss
