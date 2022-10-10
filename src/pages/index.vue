@@ -2,12 +2,12 @@
 import { onMounted } from 'vue'
 import { mouseTarget } from '~/composables/mouse'
 import { useTools } from '~/composables/tools'
-import { svg as svgTarget } from '~/composables/svg'
+import { canvas as canvasTarget } from '~/composables/canvas'
 
-const svg = ref()
+const canvas = ref()
 onMounted(() => {
-  svgTarget.value = svg.value
-  mouseTarget.value = svg.value
+  canvasTarget.value = canvas.value
+  mouseTarget.value = canvas.value
 })
 
 const { tools, currentTool } = useTools()
@@ -15,6 +15,7 @@ const { tools, currentTool } = useTools()
 const mousemove = () => tools.get(currentTool.value)?.mousemove()
 const mousedown = () => tools.get(currentTool.value)?.mousedown()
 const mouseup = () => tools.get(currentTool.value)?.mouseup()
+const mouseout = () => tools.get(currentTool.value)?.reset()
 </script>
 
 <template>
@@ -35,11 +36,13 @@ const mouseup = () => tools.get(currentTool.value)?.mouseup()
         </template>
       </fw-button>
     </aside>
-    <svg
-      ref="svg"
+    <canvas
+      ref="canvas"
+      :style="{ cursor: currentTool.cursor ?? 'default' }"
       @mousemove="mousemove"
       @mousedown="mousedown"
       @mouseup="mouseup"
+      @mouseout="mouseout"
     />
   </main>
 </template>
@@ -64,6 +67,7 @@ main {
   grid-template-columns: 300px 1fr;
   height: 100vh;
 
+  > canvas,
   > svg {
     width: 100%;
     height: 100%;

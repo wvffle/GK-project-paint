@@ -1,8 +1,10 @@
 export interface ToolHandler {
+  icon?: any
+  cursor?: string
+
   mousedown(): void
   mousemove(): void
   mouseup(): void
-  icon?: any
   reset(removeElement?: boolean): void
 }
 

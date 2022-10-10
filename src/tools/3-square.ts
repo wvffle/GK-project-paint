@@ -1,63 +1,73 @@
 import type { ToolHandler } from '~/composables/tools'
+import type { Drawable } from '~/composables/canvas'
 
-import { appendElement, createElement, removeElement } from '~/composables/svg'
+import { addDrawable, context, removeDrawable } from '~/composables/canvas'
 import { x, y } from '~/composables/mouse'
 import Icon from '~icons/lucide/square'
 
-type SVGElementType = SVGRectElement
+class Rect implements Drawable {
+  x = 0
+  y = 0
+  width = 0
+  height = 0
 
-const current = ref<SVGElementType>()
-const xy = reactive({
-  x: -1,
-  y: -1,
-})
+  draw() {
+    const ctx = context.value
+    ctx.beginPath()
+    ctx.moveTo(this.x, this.y)
+    ctx.lineTo(this.x + this.width, this.y)
+    ctx.lineTo(this.x + this.width, this.y + this.height)
+    ctx.lineTo(this.x, this.y + this.height)
+    ctx.closePath()
+    ctx.stroke()
+  }
+}
+
+let current: Rect | undefined
+const xy = { x: -1, y: -1 }
 
 export default (): ToolHandler => ({
   icon: Icon,
 
   mousemove() {
-    const rect = current.value
-    if (!rect)
+    if (!current)
       return
 
     const dx = x.value - xy.x
     const dy = y.value - xy.y
 
-    rect.setAttribute('x', dx < 0 ? `${x.value}` : `${xy.x}`)
-    rect.setAttribute('y', dy < 0 ? `${y.value}` : `${xy.y}`)
+    current.x = dx < 0 ? x.value : xy.x
+    current.y = dy < 0 ? y.value : xy.y
 
-    rect.setAttribute('width', `${Math.abs(dx)}`)
-    rect.setAttribute('height', `${Math.abs(dy)}`)
+    current.width = Math.abs(dx)
+    current.height = Math.abs(dy)
   },
 
   mousedown() {
-    const rect = createElement('rect') as SVGElementType
-    rect.setAttribute('x', x.value.toString())
-    rect.setAttribute('y', y.value.toString())
-    rect.setAttribute('width', '0')
-    rect.setAttribute('height', '0')
+    const rect = new Rect()
+    rect.x = x.value
+    rect.y = y.value
+
+    rect.width = 0
+    rect.height = 0
 
     xy.x = x.value
     xy.y = y.value
 
-    current.value = rect
-    appendElement(rect)
+    current = rect
+    addDrawable(rect)
   },
 
   mouseup() {
-    const rect = current.value
-    if (!rect)
-      return
-
     this.mousemove()
     this.reset(false)
   },
 
   reset(remove = true) {
-    if (remove && current.value)
-      removeElement(current.value)
+    if (remove && current)
+      removeDrawable(current)
 
-    current.value = undefined
+    current = undefined
     xy.x = -1
     xy.y = -1
   },

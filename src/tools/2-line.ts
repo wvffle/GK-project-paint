@@ -1,49 +1,59 @@
 import type { ToolHandler } from '~/composables/tools'
+import type { Drawable } from '~/composables/canvas'
 
-import { appendElement, createElement, removeElement } from '~/composables/svg'
+import { addDrawable, context, removeDrawable } from '~/composables/canvas'
 import { x, y } from '~/composables/mouse'
 import Icon from '~icons/lucide/edit-3'
 
-type SVGElementType = SVGLineElement
+class Line implements Drawable {
+  x1 = 0
+  y1 = 0
+  x2 = 0
+  y2 = 0
 
-const current = ref<SVGElementType>()
+  draw() {
+    const ctx = context.value
+    ctx.beginPath()
+    ctx.moveTo(this.x1, this.y1)
+    ctx.lineTo(this.x2, this.y2)
+    ctx.closePath()
+    ctx.stroke()
+  }
+}
+
+let current: Line | undefined
 
 export default (): ToolHandler => ({
   icon: Icon,
 
   mousemove() {
-    const line = current.value
-    if (!line)
+    if (!current)
       return
 
-    line.setAttribute('x2', x.value.toString())
-    line.setAttribute('y2', y.value.toString())
+    current.x2 = x.value
+    current.y2 = y.value
   },
 
   mousedown() {
-    const line = createElement('line') as SVGElementType
-    line.setAttribute('x1', x.value.toString())
-    line.setAttribute('y1', y.value.toString())
-    line.setAttribute('x2', x.value.toString())
-    line.setAttribute('y2', y.value.toString())
+    const line = new Line()
+    line.x1 = x.value
+    line.y1 = y.value
+    line.x2 = x.value
+    line.y2 = y.value
 
-    current.value = line
-    appendElement(line)
+    current = line
+    addDrawable(line)
   },
 
   mouseup() {
-    const line = current.value
-    if (!line)
-      return
-
     this.mousemove()
     this.reset(false)
   },
 
   reset(remove = true) {
-    if (remove && current.value)
-      removeElement(current.value)
+    if (remove && current)
+      removeDrawable(current)
 
-    current.value = undefined
+    current = undefined
   },
 })

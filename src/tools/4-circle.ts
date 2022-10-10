@@ -1,57 +1,60 @@
 import type { ToolHandler } from '~/composables/tools'
+import type { Drawable } from '~/composables/canvas'
 
-import { appendElement, createElement, removeElement } from '~/composables/svg'
+import { addDrawable, context, removeDrawable } from '~/composables/canvas'
 import { x, y } from '~/composables/mouse'
 import Icon from '~icons/lucide/circle'
 
-type SVGElementType = SVGCircleElement
+class Circle implements Drawable {
+  cx = 0
+  cy = 0
+  r = 0
 
-const current = ref<SVGElementType>()
-const xy = reactive({
-  x: -1,
-  y: -1,
-})
+  draw() {
+    const ctx = context.value
+    ctx.beginPath()
+    ctx.arc(this.cx, this.cy, this.r, 0, Math.PI * 2)
+    ctx.closePath()
+    ctx.stroke()
+  }
+}
+
+let current: Circle | undefined
+const xy = { x: -1, y: -1 }
 
 export default (): ToolHandler => ({
   icon: Icon,
 
   mousemove() {
-    const rect = current.value
-    if (!rect)
+    if (!current)
       return
 
-    const r = Math.sqrt((x.value - xy.x) ** 2 + (y.value - xy.y) ** 2)
-
-    rect.setAttribute('r', `${r}`)
+    current.r = Math.sqrt((x.value - xy.x) ** 2 + (y.value - xy.y) ** 2)
   },
 
   mousedown() {
-    const rect = createElement('circle') as SVGElementType
-    rect.setAttribute('cx', x.value.toString())
-    rect.setAttribute('cy', y.value.toString())
-    rect.setAttribute('r', '0')
+    const rect = new Circle()
+    rect.cx = x.value
+    rect.cy = y.value
+    rect.r = 0
 
     xy.x = x.value
     xy.y = y.value
 
-    current.value = rect
-    appendElement(rect)
+    current = rect
+    addDrawable(rect)
   },
 
   mouseup() {
-    const rect = current.value
-    if (!rect)
-      return
-
     this.mousemove()
     this.reset(false)
   },
 
   reset(remove = true) {
-    if (remove && current.value)
-      removeElement(current.value)
+    if (remove && current)
+      removeDrawable(current)
 
-    current.value = undefined
+    current = undefined
     xy.x = -1
     xy.y = -1
   },
