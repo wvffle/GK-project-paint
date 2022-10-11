@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import { mouseTarget } from '~/composables/mouse'
 import { useTools } from '~/composables/tools'
-import { canvas as canvasTarget } from '~/composables/canvas'
+import { canvas as canvasTarget, cursor } from '~/composables/canvas'
 
 const canvas = ref()
 onMounted(() => {
@@ -38,7 +38,7 @@ const mouseout = () => tools.get(currentTool.value)?.reset()
     </aside>
     <canvas
       ref="canvas"
-      :style="{ cursor: currentTool.cursor ?? 'default' }"
+      :style="{ cursor }"
       @mousemove="mousemove"
       @mousedown="mousedown"
       @mouseup="mouseup"

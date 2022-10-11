@@ -1,7 +1,7 @@
 import type { ToolHandler } from '~/composables/tools'
 import type { Drawable } from '~/composables/canvas'
 
-import { addDrawable, context, removeDrawable } from '~/composables/canvas'
+import { addDrawable, removeDrawable } from '~/composables/canvas'
 import { x, y } from '~/composables/mouse'
 import Icon from '~icons/lucide/square'
 
@@ -11,15 +11,26 @@ class Rect implements Drawable {
   width = 0
   height = 0
 
-  draw() {
-    const ctx = context.value
-    ctx.beginPath()
-    ctx.moveTo(this.x, this.y)
-    ctx.lineTo(this.x + this.width, this.y)
-    ctx.lineTo(this.x + this.width, this.y + this.height)
-    ctx.lineTo(this.x, this.y + this.height)
-    ctx.closePath()
-    ctx.stroke()
+  tx = 0
+  ty = 0
+
+  applyTransform() {
+    this.x += this.tx
+    this.y += this.ty
+    this.tx = 0
+    this.ty = 0
+  }
+
+  get path() {
+    const path = new Path2D()
+    path.rect(
+      this.x + this.tx,
+      this.y + this.ty,
+      this.width,
+      this.height,
+    )
+    path.closePath()
+    return path
   }
 }
 

@@ -1,7 +1,7 @@
 import type { ToolHandler } from '~/composables/tools'
 import type { Drawable } from '~/composables/canvas'
 
-import { addDrawable, context, removeDrawable } from '~/composables/canvas'
+import { addDrawable, removeDrawable } from '~/composables/canvas'
 import { x, y } from '~/composables/mouse'
 import Icon from '~icons/lucide/circle'
 
@@ -10,12 +10,27 @@ class Circle implements Drawable {
   cy = 0
   r = 0
 
-  draw() {
-    const ctx = context.value
-    ctx.beginPath()
-    ctx.arc(this.cx, this.cy, this.r, 0, Math.PI * 2)
-    ctx.closePath()
-    ctx.stroke()
+  tx = 0
+  ty = 0
+
+  applyTransform() {
+    this.cx += this.tx
+    this.cy += this.ty
+    this.tx = 0
+    this.ty = 0
+  }
+
+  get path() {
+    const path = new Path2D()
+    path.arc(
+      this.cx + this.tx,
+      this.cy + this.ty,
+      this.r,
+      0,
+      Math.PI * 2,
+    )
+    path.closePath()
+    return path
   }
 }
 

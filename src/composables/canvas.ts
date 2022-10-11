@@ -2,8 +2,13 @@ export const canvas = ref()
 export const context = computed<CanvasRenderingContext2D>(() => canvas.value?.getContext('2d'))
 
 export interface Drawable {
-  draw(): void
+  readonly path: Path2D
+  tx: number
+  ty: number
+  applyTransform(): void
 }
+
+export const cursor = ref<string>()
 
 export const drawables = new Set<Drawable>()
 
@@ -21,11 +26,12 @@ watchOnce(canvas, (canvas) => {
 })
 
 useRafFn(() => {
-  if (!context.value)
+  const ctx = context.value
+  if (!ctx)
     return
 
   canvas.value.width += 0
 
   for (const drawable of drawables)
-    drawable.draw()
+    ctx.stroke(drawable.path)
 }, { immediate: true })
