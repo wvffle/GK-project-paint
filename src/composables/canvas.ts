@@ -2,12 +2,14 @@ export const canvas = ref()
 export const context = computed<CanvasRenderingContext2D>(() => canvas.value?.getContext('2d'))
 
 export interface Drawable {
+  readonly fields: Record<string, 'string' | 'number'>
   readonly path: Path2D
   readonly center: [number, number]
   tx: number
   ty: number
   ts: number
   applyTransform(): void
+
 }
 
 export const cursor = ref<string>()

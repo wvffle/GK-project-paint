@@ -1,7 +1,10 @@
-export interface ToolHandler {
+import type { Drawable } from './canvas'
+
+export interface ToolHandler<T extends Drawable> {
   category: string
   icon?: any
   cursor?: string
+  current?: T
 
   mousedown(): void
   mousemove(): void
@@ -9,8 +12,8 @@ export interface ToolHandler {
   reset(removeElement?: boolean): void
 }
 
-const tools = new Map<string, ToolHandler>()
-for (const [path, module] of Object.entries(import.meta.glob('~/tools/*.ts', { eager: true })) as [string, { default: () => ToolHandler }][]) {
+const tools = reactive(new Map<string, ToolHandler<Drawable>>())
+for (const [path, module] of Object.entries(import.meta.glob('~/tools/*.ts', { eager: true })) as [string, { default: () => ToolHandler<Drawable> }][]) {
   const tool = path.slice(11, -3)
   tools.set(tool, module.default())
 }

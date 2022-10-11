@@ -8,6 +8,9 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     FwButton: typeof import('@funkwhale/vui')['FwButton']
+    FwInput: typeof import('@funkwhale/vui')['FwInput']
+    FwTab: typeof import('@funkwhale/vui')['FwTab']
+    FwTabs: typeof import('@funkwhale/vui')['FwTabs']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     Line: typeof import('./components/tools/Line.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

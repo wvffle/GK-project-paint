@@ -3,21 +3,19 @@ import type { Drawable } from '~/composables/canvas'
 
 import { context, cursor, drawables } from '~/composables/canvas'
 import { x, y } from '~/composables/mouse'
-import Icon from '~icons/lucide/maximize-2'
-import { distanceBetweenPoints } from '~/composables/maths'
+import Icon from '~icons/lucide/grab'
 
 let hovered: Drawable | undefined
-let current: Drawable | undefined
-const xy = { x: 0, y: 0, r: 0 }
+const xy = { x: 0, y: 0 }
 
-export default (): ToolHandler => ({
+export default (): ToolHandler<Drawable> => ({
   category: 'transform',
   icon: Icon,
 
   mousemove() {
-    if (current) {
-      const r = distanceBetweenPoints(...current.center, x.value, y.value)
-      current.ts = r / xy.r
+    if (this.current) {
+      this.current.tx = x.value - xy.x
+      this.current.ty = y.value - xy.y
       return
     }
 
@@ -32,7 +30,7 @@ export default (): ToolHandler => ({
     hovered = undefined
     for (const drawable of drawables) {
       if (ctx.isPointInStroke(drawable.path, mx, my)) {
-        cursor.value = 'sw-resize'
+        cursor.value = 'grab'
         hovered = drawable
         break
       }
@@ -43,10 +41,9 @@ export default (): ToolHandler => ({
     if (!hovered)
       return
 
-    current = hovered
+    this.current = hovered
     xy.x = x.value
     xy.y = y.value
-    xy.r = distanceBetweenPoints(...current.center, xy.x, xy.y)
   },
 
   mouseup() {
@@ -56,11 +53,10 @@ export default (): ToolHandler => ({
 
   reset(cancelTransformation = true) {
     if (!cancelTransformation)
-      current?.applyTransform()
+      this.current?.applyTransform()
 
-    current = undefined
+    this.current = undefined
     xy.x = 0
     xy.y = 0
-    xy.r = 0
   },
 })

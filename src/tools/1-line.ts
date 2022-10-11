@@ -39,21 +39,26 @@ class Line implements Drawable {
   get path() {
     const path = new Path2D()
 
+    const x1 = this.x1 + this.tx
+    const y1 = this.y1 + this.ty
+    const x2 = this.x2 + this.tx
+    const y2 = this.y2 + this.ty
+
     if (this.ts !== 1) {
-      const length = distanceBetweenPoints(this.x1, this.x2, this.y1, this.y2)
+      const length = distanceBetweenPoints(x1, x2, y1, y2)
       const d = (length * this.ts - length) / 2
       path.moveTo(
-        this.x1 - d * (this.x2 - this.x1) / length,
-        this.y1 - d * (this.y2 - this.y1) / length,
+        x1 - d * (x2 - x1) / length,
+        y1 - d * (y2 - y1) / length,
       )
       path.lineTo(
-        this.x2 + d * (this.x2 - this.x1) / length,
-        this.y2 + d * (this.y2 - this.y1) / length,
+        x2 + d * (x2 - x1) / length,
+        y2 + d * (y2 - y1) / length,
       )
     }
     else {
-      path.moveTo(this.x1 + this.tx, this.y1 + this.ty)
-      path.lineTo(this.x2 + this.tx, this.y2 + this.ty)
+      path.moveTo(x1 + this.tx, y1 + this.ty)
+      path.lineTo(x2 + this.tx, y2 + this.ty)
     }
 
     path.closePath()
@@ -66,20 +71,25 @@ class Line implements Drawable {
       (this.y1 + this.y2) / 2,
     ]
   }
+
+  readonly fields = {
+    x1: 'number',
+    y1: 'number',
+    x2: 'number',
+    y2: 'number',
+  } as const
 }
 
-let current: Line | undefined
-
-export default (): ToolHandler => ({
+export default (): ToolHandler<Line> => ({
   category: 'draw',
   icon: Icon,
 
   mousemove() {
-    if (!current)
+    if (!this.current)
       return
 
-    current.x2 = x.value
-    current.y2 = y.value
+    this.current.x2 = x.value
+    this.current.y2 = y.value
   },
 
   mousedown() {
@@ -89,7 +99,7 @@ export default (): ToolHandler => ({
     line.x2 = x.value
     line.y2 = y.value
 
-    current = line
+    this.current = line
     addDrawable(line)
   },
 
@@ -99,9 +109,9 @@ export default (): ToolHandler => ({
   },
 
   reset(remove = true) {
-    if (remove && current)
-      removeDrawable(current)
+    if (remove && this.current)
+      removeDrawable(this.current)
 
-    current = undefined
+    this.current = undefined
   },
 })

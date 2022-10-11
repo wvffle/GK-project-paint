@@ -43,20 +43,25 @@ class Circle implements Drawable {
       this.cy,
     ]
   }
+
+  readonly fields = {
+    cx: 'number',
+    cy: 'number',
+    r: 'number',
+  } as const
 }
 
-let current: Circle | undefined
 const xy = { x: -1, y: -1 }
 
-export default (): ToolHandler => ({
+export default (): ToolHandler<Circle> => ({
   category: 'draw',
   icon: Icon,
 
   mousemove() {
-    if (!current)
+    if (!this.current)
       return
 
-    current.r = distanceBetweenPoints(xy.x, xy.y, x.value, y.value)
+    this.current.r = distanceBetweenPoints(xy.x, xy.y, x.value, y.value)
   },
 
   mousedown() {
@@ -68,7 +73,7 @@ export default (): ToolHandler => ({
     xy.x = x.value
     xy.y = y.value
 
-    current = rect
+    this.current = rect
     addDrawable(rect)
   },
 
@@ -78,10 +83,10 @@ export default (): ToolHandler => ({
   },
 
   reset(remove = true) {
-    if (remove && current)
-      removeDrawable(current)
+    if (remove && this.current)
+      removeDrawable(this.current)
 
-    current = undefined
+    this.current = undefined
     xy.x = -1
     xy.y = -1
   },

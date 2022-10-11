@@ -50,27 +50,33 @@ class Rect implements Drawable {
       this.y + this.height / 2,
     ]
   }
+
+  readonly fields = {
+    x: 'number',
+    y: 'number',
+    width: 'number',
+    height: 'number',
+  } as const
 }
 
-let current: Rect | undefined
 const xy = { x: -1, y: -1 }
 
-export default (): ToolHandler => ({
+export default (): ToolHandler<Rect> => ({
   category: 'draw',
   icon: Icon,
 
   mousemove() {
-    if (!current)
+    if (!this.current)
       return
 
     const dx = x.value - xy.x
     const dy = y.value - xy.y
 
-    current.x = dx < 0 ? x.value : xy.x
-    current.y = dy < 0 ? y.value : xy.y
+    this.current.x = dx < 0 ? x.value : xy.x
+    this.current.y = dy < 0 ? y.value : xy.y
 
-    current.width = Math.abs(dx)
-    current.height = Math.abs(dy)
+    this.current.width = Math.abs(dx)
+    this.current.height = Math.abs(dy)
   },
 
   mousedown() {
@@ -84,7 +90,7 @@ export default (): ToolHandler => ({
     xy.x = x.value
     xy.y = y.value
 
-    current = rect
+    this.current = rect
     addDrawable(rect)
   },
 
@@ -94,10 +100,10 @@ export default (): ToolHandler => ({
   },
 
   reset(remove = true) {
-    if (remove && current)
-      removeDrawable(current)
+    if (remove && this.current)
+      removeDrawable(this.current)
 
-    current = undefined
+    this.current = undefined
     xy.x = -1
     xy.y = -1
   },
