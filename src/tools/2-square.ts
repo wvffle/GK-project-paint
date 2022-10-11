@@ -13,24 +13,42 @@ class Rect implements Drawable {
 
   tx = 0
   ty = 0
+  ts = 1
 
   applyTransform() {
-    this.x += this.tx
-    this.y += this.ty
+    const sw = this.width * this.ts
+    const sh = this.height * this.ts
+
+    this.x += this.tx + this.width / 2 - sw / 2
+    this.y += this.ty + this.height / 2 - sh / 2
+    this.width = sw
+    this.height = sh
     this.tx = 0
     this.ty = 0
+    this.ts = 1
   }
 
   get path() {
     const path = new Path2D()
+
+    const sw = this.width * this.ts
+    const sh = this.height * this.ts
+
     path.rect(
-      this.x + this.tx,
-      this.y + this.ty,
-      this.width,
-      this.height,
+      this.x + this.tx + this.width / 2 - sw / 2,
+      this.y + this.ty + this.height / 2 - sh / 2,
+      sw,
+      sh,
     )
     path.closePath()
     return path
+  }
+
+  get center(): [number, number] {
+    return [
+      this.x + this.width / 2,
+      this.y + this.height / 2,
+    ]
   }
 }
 
@@ -38,6 +56,7 @@ let current: Rect | undefined
 const xy = { x: -1, y: -1 }
 
 export default (): ToolHandler => ({
+  category: 'draw',
   icon: Icon,
 
   mousemove() {

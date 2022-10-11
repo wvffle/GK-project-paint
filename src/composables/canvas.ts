@@ -3,8 +3,10 @@ export const context = computed<CanvasRenderingContext2D>(() => canvas.value?.ge
 
 export interface Drawable {
   readonly path: Path2D
+  readonly center: [number, number]
   tx: number
   ty: number
+  ts: number
   applyTransform(): void
 }
 
@@ -32,6 +34,7 @@ useRafFn(() => {
 
   canvas.value.width += 0
 
+  ctx.lineWidth = 3
   for (const drawable of drawables)
     ctx.stroke(drawable.path)
 }, { immediate: true })

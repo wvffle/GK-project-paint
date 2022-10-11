@@ -1,4 +1,5 @@
 export interface ToolHandler {
+  category: string
   icon?: any
   cursor?: string
 
@@ -9,10 +10,16 @@ export interface ToolHandler {
 }
 
 const tools = new Map<string, ToolHandler>()
-
 for (const [path, module] of Object.entries(import.meta.glob('~/tools/*.ts', { eager: true })) as [string, { default: () => ToolHandler }][]) {
   const tool = path.slice(11, -3)
   tools.set(tool, module.default())
+}
+
+const toolsByCategory: Record<string, string[]> = {}
+for (const tool of tools.keys()) {
+  const { category = 'undefined' } = tools.get(tool) ?? {}
+  toolsByCategory[category] ??= []
+  toolsByCategory[category].push(tool)
 }
 
 export const useTools = () => {
@@ -25,5 +32,6 @@ export const useTools = () => {
   return {
     currentTool,
     tools,
+    toolsByCategory,
   }
 }

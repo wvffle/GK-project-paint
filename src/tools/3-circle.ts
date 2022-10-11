@@ -4,6 +4,7 @@ import type { Drawable } from '~/composables/canvas'
 import { addDrawable, removeDrawable } from '~/composables/canvas'
 import { x, y } from '~/composables/mouse'
 import Icon from '~icons/lucide/circle'
+import { distanceBetweenPoints } from '~/composables/maths'
 
 class Circle implements Drawable {
   cx = 0
@@ -12,12 +13,15 @@ class Circle implements Drawable {
 
   tx = 0
   ty = 0
+  ts = 1
 
   applyTransform() {
     this.cx += this.tx
     this.cy += this.ty
+    this.r *= this.ts
     this.tx = 0
     this.ty = 0
+    this.ts = 1
   }
 
   get path() {
@@ -25,12 +29,19 @@ class Circle implements Drawable {
     path.arc(
       this.cx + this.tx,
       this.cy + this.ty,
-      this.r,
+      this.r * this.ts,
       0,
       Math.PI * 2,
     )
     path.closePath()
     return path
+  }
+
+  get center(): [number, number] {
+    return [
+      this.cx,
+      this.cy,
+    ]
   }
 }
 
@@ -38,13 +49,14 @@ let current: Circle | undefined
 const xy = { x: -1, y: -1 }
 
 export default (): ToolHandler => ({
+  category: 'draw',
   icon: Icon,
 
   mousemove() {
     if (!current)
       return
 
-    current.r = Math.sqrt((x.value - xy.x) ** 2 + (y.value - xy.y) ** 2)
+    current.r = distanceBetweenPoints(xy.x, xy.y, x.value, y.value)
   },
 
   mousedown() {
