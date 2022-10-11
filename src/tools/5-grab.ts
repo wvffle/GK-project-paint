@@ -10,7 +10,7 @@ const xy = { x: 0, y: 0 }
 
 export default (): ToolHandler<Drawable> => ({
   category: 'transform',
-  icon: Icon,
+  icon: markRaw(Icon),
 
   mousemove() {
     if (this.current) {

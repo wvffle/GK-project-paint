@@ -84,7 +84,7 @@ defineDrawableImplementation(Line)
 
 export default (): ToolHandler<Line> => ({
   category: 'draw',
-  icon: Icon,
+  icon: markRaw(Icon),
 
   mousemove() {
     if (!this.current)

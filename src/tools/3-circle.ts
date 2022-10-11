@@ -57,7 +57,7 @@ const xy = { x: -1, y: -1 }
 
 export default (): ToolHandler<Circle> => ({
   category: 'draw',
-  icon: Icon,
+  icon: markRaw(Icon),
 
   mousemove() {
     if (!this.current)

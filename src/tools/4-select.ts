@@ -9,7 +9,7 @@ let hovered: Drawable | undefined
 
 export default (): ToolHandler<Drawable> => ({
   category: 'transform',
-  icon: Icon,
+  icon: markRaw(Icon),
 
   mousemove() {
     const ctx = context.value
