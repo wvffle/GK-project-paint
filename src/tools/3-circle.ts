@@ -1,7 +1,7 @@
 import type { ToolHandler } from '~/composables/tools'
 import type { Drawable } from '~/composables/canvas'
+import { addDrawable, defineDrawableImplementation, removeDrawable } from '~/composables/canvas'
 
-import { addDrawable, removeDrawable } from '~/composables/canvas'
 import { x, y } from '~/composables/mouse'
 import Icon from '~icons/lucide/circle'
 import { distanceBetweenPoints } from '~/composables/maths'
@@ -50,6 +50,8 @@ class Circle implements Drawable {
     r: 'number',
   } as const
 }
+
+defineDrawableImplementation(Circle)
 
 const xy = { x: -1, y: -1 }
 

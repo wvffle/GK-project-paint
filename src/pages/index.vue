@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import { mouseTarget } from '~/composables/mouse'
 import { useTools } from '~/composables/tools'
-import { canvas as canvasTarget, cursor } from '~/composables/canvas'
+import { canvas as canvasTarget, cursor, download, upload } from '~/composables/canvas'
 
 const canvas = ref()
 onMounted(() => {
@@ -150,6 +150,15 @@ const resetTransform = () => {
           />
         </div>
       </div>
+      <template v-else>
+        <div />
+        <div />
+      </template>
+      <hr>
+      <div class="buttons">
+        <fw-button icon="bi-upload" secondary @click="upload" />
+        <fw-button icon="bi-save" @click="download" />
+      </div>
     </aside>
     <canvas
       ref="canvas"
@@ -164,7 +173,7 @@ const resetTransform = () => {
 <style scoped lang="scss">
 aside {
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto 1fr auto auto;
   border-right: 1px solid var(--fw-gray-400);
 
   .tools {
@@ -208,6 +217,11 @@ aside {
       }
     }
 
+  }
+
+  > .buttons {
+    padding: 0.5rem 1rem 1rem;
+    display: flex;
   }
 
   label {

@@ -1,7 +1,7 @@
 import type { ToolHandler } from '~/composables/tools'
 import type { Drawable } from '~/composables/canvas'
+import { addDrawable, defineDrawableImplementation, removeDrawable } from '~/composables/canvas'
 
-import { addDrawable, removeDrawable } from '~/composables/canvas'
 import { x, y } from '~/composables/mouse'
 import Icon from '~icons/lucide/edit-3'
 import { distanceBetweenPoints } from '~/composables/maths'
@@ -79,6 +79,8 @@ class Line implements Drawable {
     y2: 'number',
   } as const
 }
+
+defineDrawableImplementation(Line)
 
 export default (): ToolHandler<Line> => ({
   category: 'draw',
