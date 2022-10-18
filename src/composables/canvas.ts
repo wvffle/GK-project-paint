@@ -64,6 +64,10 @@ useRafFn(() => {
 
   ctx.translate(panned.x, panned.y)
 
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, canvas.value.width, canvas.value.height)
+  ctx.fillStyle = '#000'
+
   ctx.lineWidth = 3
   for (const drawable of drawables)
     ctx.stroke(drawable.path)
@@ -184,6 +188,33 @@ export const importPPM = async () => {
   console.timeEnd('Writing data')
 
   ppms.push(new PPM(imageData))
+}
+
+export const importJPEG = async () => {
+  const buffer = await importFile('.jpg .jpeg', false)
+  const data = new Uint8ClampedArray(buffer)
+  const blob = new Blob([data], { type: 'image/jpeg' })
+
+  const image = new Image()
+  image.src = URL.createObjectURL(blob)
+
+  await new Promise<void>(resolve => image.onload = () => resolve())
+
+  context.value.drawImage(image, 0, 0)
+  const imageData = context.value.getImageData(0, 0, image.width, image.height)
+  ppms.push(new PPM(imageData))
+}
+
+export const exportJPEG = async () => {
+  const link = document.createElement('a')
+
+  link.download = 'picture.jpeg'
+  // eslint-disable-next-line no-alert
+  link.href = canvas.value.toDataURL('image/jpeg', prompt('Quality level: [0.0 - 1.0]'))
+  link.dataset.downloadurl = ['image/jpeg', link.download, link.href].join(':')
+
+  link.click()
+  link.remove()
 }
 
 export const rgb = reactive({ r: 0, g: 0, b: 0 })
