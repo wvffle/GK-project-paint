@@ -1,3 +1,6 @@
+import { x, y } from './mouse'
+import { parsePPM, parsePPMHeader } from './ppm'
+
 export const canvas = ref()
 export const context = computed<CanvasRenderingContext2D>(() => canvas.value?.getContext('2d'))
 
@@ -9,11 +12,33 @@ export interface Drawable {
   ty: number
   ts: number
   applyTransform(): void
-
 }
 
 export const cursor = ref<string>()
 
+export const scale = ref(1)
+export const panning = ref(false)
+const panned = {
+  x: 0,
+  y: 0,
+  lastX: 0,
+  lastY: 0,
+}
+
+whenever(panning, () => {
+  panned.lastX = x.value - panned.x
+  panned.lastY = y.value - panned.y
+})
+
+export const pan = () => {
+  if (!panning.value)
+    return
+
+  panned.x = x.value - panned.lastX
+  panned.y = y.value - panned.lastY
+}
+
+const ppms: PPM[] = []
 export const drawables = new Set<Drawable>()
 
 export const addDrawable = (drawable: Drawable) => {
@@ -24,9 +49,10 @@ export const removeDrawable = (drawable: Drawable) => {
   drawables.delete(drawable)
 }
 
-watchOnce(canvas, (canvas) => {
-  canvas.width = window.innerWidth - 301
-  canvas.height = window.innerHeight
+useResizeObserver(canvas, ([{ contentRect }]) => {
+  const { width, height } = contentRect
+  canvas.value.width = width
+  canvas.value.height = height
 })
 
 useRafFn(() => {
@@ -36,9 +62,15 @@ useRafFn(() => {
 
   canvas.value.width += 0
 
+  ctx.translate(panned.x, panned.y)
+
   ctx.lineWidth = 3
   for (const drawable of drawables)
     ctx.stroke(drawable.path)
+
+  ctx.scale(scale.value, scale.value)
+  for (const ppm of ppms)
+    ctx.drawImage(ppm.canvas, 0, 0)
 }, { immediate: true })
 
 interface SerializedDrawable {
@@ -84,22 +116,72 @@ export const download = () => {
   link.remove()
 }
 
-export const upload = () => {
+async function importFile(accept: string, asText?: true): Promise<string>
+async function importFile(accept: string, asText: false): Promise<ArrayBuffer>
+async function importFile(accept = '*', asText = true) {
   const input = document.createElement('input')
   input.type = 'file'
-  input.accept = '.json'
+  input.accept = accept
   input.click()
-  input.onchange = () => {
-    if (!input.files)
-      return
 
-    const file = input.files[0]
-    const reader = new FileReader()
-    reader.readAsText(file)
-    reader.onload = () => {
-      drawables.clear()
-      for (const drawable of JSON.parse(reader.result as string).map(deserialize))
-        drawables.add(drawable)
-    }
+  await new Promise<void>((resolve) => {
+    input.onchange = () => resolve()
+  })
+
+  if (!input.files)
+    return
+
+  const file = input.files[0]
+
+  if (asText)
+    return file.text()
+
+  return file.arrayBuffer()
+}
+
+export const upload = async () => {
+  const content = await importFile('.json')
+
+  drawables.clear()
+  for (const drawable of JSON.parse(content).map(deserialize))
+    drawables.add(drawable)
+}
+
+class PPM {
+  canvas = document.createElement('canvas')
+
+  constructor(imageData: ImageData) {
+    this.canvas.height = imageData.height
+    this.canvas.width = imageData.width
+    this.canvas.getContext('2d')
+      ?.putImageData(imageData, 0, 0)
   }
+}
+
+export const importPPM = async () => {
+  const content = await importFile('.ppm', false)
+  console.time('Parsing header')
+  const { width, height } = parsePPMHeader(content)
+  console.timeEnd('Parsing header')
+
+  console.time('Reading data')
+  const data = await parsePPM(content)
+  console.timeEnd('Reading data')
+  console.time('Writing data')
+  const imageData = context.value.createImageData(width, height)
+
+  for (let i = 0; i < imageData.data.length; i++)
+    imageData.data[i] = 255
+
+  let counter = 0
+  for (let i = 0; i < data.length; i++) {
+    imageData.data[counter++] = data[i]
+
+    if (i % 3 === 2)
+      counter += 1
+  }
+
+  console.timeEnd('Writing data')
+
+  ppms.push(new PPM(imageData))
 }
