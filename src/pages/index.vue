@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import { mouseTarget } from '~/composables/mouse'
 import { useTools } from '~/composables/tools'
-import { canvas as canvasTarget, cursor, download, upload } from '~/composables/canvas'
+import { canvas as canvasTarget, cursor, download, importPPM, pan, panning, scale, upload } from '~/composables/canvas'
 
 const canvas = ref()
 onMounted(() => {
@@ -13,9 +13,14 @@ onMounted(() => {
 const { tools, toolsByCategory, currentTool } = useTools()
 const current = computed(() => tools.get(currentTool.value))
 
-const mousemove = () => current.value?.mousemove()
 const mousedown = () => current.value?.mousedown()
+const mousemove = () => {
+  pan()
+  current.value?.mousemove()
+}
 const mouseup = () => {
+  panning.value = false
+
   const tool = current.value
   if (!tool)
     return
@@ -30,6 +35,10 @@ const mouseup = () => {
       current.value.current = target
     }
   }
+}
+
+const zoom = (event: WheelEvent) => {
+  scale.value += 0.05 * (event.deltaY < 0 ? 1 : -1)
 }
 
 const tx = computed({
@@ -156,6 +165,7 @@ const resetTransform = () => {
       </template>
       <hr>
       <div class="buttons">
+        <fw-button icon="bi-image" secondary @click="importPPM" />
         <fw-button icon="bi-upload" secondary @click="upload" />
         <fw-button icon="bi-save" @click="download" />
       </div>
@@ -164,8 +174,10 @@ const resetTransform = () => {
       ref="canvas"
       :style="{ cursor }"
       @mousemove="mousemove"
-      @mousedown="mousedown"
+      @mousedown.exact="mousedown"
       @mouseup="mouseup"
+      @mousedown.ctrl="panning = true"
+      @wheel="zoom"
     />
   </main>
 </template>
