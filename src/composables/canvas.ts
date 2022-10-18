@@ -185,3 +185,12 @@ export const importPPM = async () => {
 
   ppms.push(new PPM(imageData))
 }
+
+export const rgb = reactive({ r: 0, g: 0, b: 0 })
+export const pick = () => {
+  const imageData = context.value.getImageData(x.value, y.value, 1, 1)
+  const [r, g, b] = imageData.data
+  rgb.r = r
+  rgb.g = g
+  rgb.b = b
+}
