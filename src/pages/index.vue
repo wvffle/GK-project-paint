@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import { mouseTarget } from '~/composables/mouse'
 import { useTools } from '~/composables/tools'
-import { canvas as canvasTarget, cursor, download, importPPM, pan, panning, pick, rgb, scale, upload } from '~/composables/canvas'
+import { canvas as canvasTarget, cursor, download, exportJPEG, importJPEG, importPPM, pan, panning, pick, rgb, scale, upload } from '~/composables/canvas'
 
 const canvas = ref()
 onMounted(() => {
@@ -73,6 +73,50 @@ const resetTransform = () => {
     current.value.current.ts = 1
   }
 }
+
+const importContextOpen = ref(false)
+const importContext = [
+  {
+    type: 'button',
+    text: 'Import PPM',
+    icon: 'bi-image',
+    click: () => {
+      importPPM()
+      importContextOpen.value = false
+    },
+  },
+  {
+    type: 'button',
+    text: 'Import JPEG',
+    icon: 'bi-image',
+    click: () => {
+      importJPEG()
+      importContextOpen.value = false
+    },
+  },
+]
+
+const downloadContextOpen = ref(false)
+const downloadContext = [
+  {
+    type: 'button',
+    text: 'Save',
+    icon: 'bi-save',
+    click: () => {
+      download()
+      downloadContextOpen.value = false
+    },
+  },
+  {
+    type: 'button',
+    text: 'Export to JPEG',
+    icon: 'bi-image',
+    click: () => {
+      exportJPEG()
+      downloadContextOpen.value = false
+    },
+  },
+]
 </script>
 
 <template>
@@ -166,9 +210,21 @@ const resetTransform = () => {
       </template>
       <hr>
       <div class="buttons">
-        <fw-button icon="bi-image" secondary @click="importPPM" />
+        <div style="position: relative">
+          <fw-button icon="bi-image" secondary @click="importContextOpen = true" />
+          <fw-popover
+            v-model:open="importContextOpen"
+            :items="importContext"
+          />
+        </div>
         <fw-button icon="bi-upload" secondary @click="upload" />
-        <fw-button icon="bi-save" @click="download" />
+        <div style="position: relative">
+          <fw-button icon="bi-save" @click="downloadContextOpen = true" />
+          <fw-popover
+            v-model:open="downloadContextOpen"
+            :items="downloadContext"
+          />
+        </div>
       </div>
     </aside>
     <canvas
@@ -239,6 +295,10 @@ aside {
   > .buttons {
     padding: 0.5rem 1rem 1rem;
     display: flex;
+
+    .funkwhale.popover {
+      bottom: 0;
+    }
   }
 
   label {
