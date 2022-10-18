@@ -38,8 +38,10 @@ const mouseup = () => {
   }
 }
 
+let steps = 0
 const zoom = (event: WheelEvent) => {
-  scale.value += 0.05 * (event.deltaY < 0 ? 1 : -1)
+  steps += event.deltaY < 0 ? 1 : -1
+  scale.value = 1.5 ** steps
 }
 
 const tx = computed({

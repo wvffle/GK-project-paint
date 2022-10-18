@@ -191,7 +191,7 @@ export const importPPM = async () => {
 }
 
 export const importJPEG = async () => {
-  const buffer = await importFile('.jpg .jpeg', false)
+  const buffer = await importFile('image/jpeg', false)
   const data = new Uint8ClampedArray(buffer)
   const blob = new Blob([data], { type: 'image/jpeg' })
 
