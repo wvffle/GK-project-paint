@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import { mouseTarget } from '~/composables/mouse'
 import { useTools } from '~/composables/tools'
-import { canvas as canvasTarget, cursor, download, importPPM, pan, panning, scale, upload } from '~/composables/canvas'
+import { canvas as canvasTarget, cursor, download, importPPM, pan, panning, pick, rgb, scale, upload } from '~/composables/canvas'
 
 const canvas = ref()
 onMounted(() => {
@@ -16,6 +16,7 @@ const current = computed(() => tools.get(currentTool.value))
 const mousedown = () => current.value?.mousedown()
 const mousemove = () => {
   pan()
+  pick()
   current.value?.mousemove()
 }
 const mouseup = () => {
@@ -179,6 +180,10 @@ const resetTransform = () => {
       @mousedown.ctrl="panning = true"
       @wheel="zoom"
     />
+    <div class="rgb">
+      <div class="preview" :style="{ backgroundColor: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` }" />
+      <pre>r: {{ rgb.r }}<br>g: {{ rgb.g }}<br>b: {{ rgb.b }}</pre>
+    </div>
   </main>
 </template>
 
@@ -251,6 +256,26 @@ main {
   > canvas {
     width: 100%;
     height: 100%;
+  }
+
+  > .rgb {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    font-size: 10px;
+    line-height: 1em;
+    padding: 0.5em 1em 0.5em 0.5em;
+    display: flex;
+    pointer-events: none;
+    border-radius: var(--fw-border-radius);
+    background: var(--fw-bg-color);
+
+    > .preview {
+      height: 30px;
+      width: 30px;
+      border-radius: var(--fw-border-radius);
+      margin-right: 1em;
+    }
   }
 }
 </style>
