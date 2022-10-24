@@ -73,6 +73,7 @@ useRafFn(() => {
     ctx.stroke(drawable.path)
 
   ctx.scale(scale.value, scale.value)
+
   for (const ppm of ppms)
     ctx.drawImage(ppm.canvas, 0, 0)
 }, { immediate: true })
@@ -163,31 +164,37 @@ class PPM {
 }
 
 export const importPPM = async () => {
-  const content = await importFile('.ppm', false)
-  console.time('Parsing header')
-  const { width, height } = parsePPMHeader(content)
-  console.timeEnd('Parsing header')
+  try {
+    const content = await importFile('.ppm', false)
+    console.time('Parsing header')
+    const { width, height } = parsePPMHeader(content)
+    console.timeEnd('Parsing header')
 
-  console.time('Reading data')
-  const data = await parsePPM(content)
-  console.timeEnd('Reading data')
-  console.time('Writing data')
-  const imageData = context.value.createImageData(width, height)
+    console.time('Reading data')
+    const data = await parsePPM(content)
+    console.timeEnd('Reading data')
+    console.time('Writing data')
+    const imageData = context.value.createImageData(width, height)
 
-  for (let i = 0; i < imageData.data.length; i++)
-    imageData.data[i] = 255
+    for (let i = 0; i < imageData.data.length; i++)
+      imageData.data[i] = 255
 
-  let counter = 0
-  for (let i = 0; i < data.length; i++) {
-    imageData.data[counter++] = data[i]
+    let counter = 0
+    for (let i = 0; i < data.length; i++) {
+      imageData.data[counter++] = data[i]
 
-    if (i % 3 === 2)
-      counter += 1
+      if (i % 3 === 2)
+        counter += 1
+    }
+
+    console.timeEnd('Writing data')
+
+    ppms.push(new PPM(imageData))
   }
-
-  console.timeEnd('Writing data')
-
-  ppms.push(new PPM(imageData))
+  catch (err) {
+    // eslint-disable-next-line no-alert
+    alert((err as Error).message)
+  }
 }
 
 export const importJPEG = async () => {

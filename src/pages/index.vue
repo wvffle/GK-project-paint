@@ -42,6 +42,7 @@ let steps = 0
 const zoom = (event: WheelEvent) => {
   steps += event.deltaY < 0 ? 1 : -1
   scale.value = 1.5 ** steps
+  requestAnimationFrame(pick)
 }
 
 const tx = computed({
