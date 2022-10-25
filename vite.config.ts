@@ -79,6 +79,7 @@ export default defineConfig({
         'vue',
         'vue-router',
         '@vueuse/core',
+        '@vueuse/math',
       ],
       dts: 'src/auto-imports.d.ts',
     }),

@@ -7,12 +7,15 @@ specifiers:
   '@tauri-apps/api': ^1.1.0
   '@tauri-apps/cli': ^1.1.1
   '@types/node': ^18.8.2
+  '@types/three': ^0.144.0
   '@vitejs/plugin-vue': ^3.1.2
   '@vueuse/core': ^9.3.0
+  '@vueuse/math': ^9.3.1
   eslint: ^8.24.0
   markdown-it-link-attributes: ^4.0.1
   markdown-it-shiki: ^0.5.1
   sass: ^1.55.0
+  three: ^0.145.0
   typescript: ^4.8.4
   unocss: ^0.45.26
   unplugin-auto-import: ^0.11.2
@@ -31,6 +34,8 @@ dependencies:
   '@funkwhale/vui': 0.1.3_37dcajzw4i7mi7h7vyx364nbvy
   '@tauri-apps/api': 1.1.0
   '@vueuse/core': 9.3.0_vue@3.2.40
+  '@vueuse/math': 9.3.1_vue@3.2.40
+  three: 0.145.0
   unplugin-icons: 0.14.11
   vue: 3.2.40
   vue-i18n: 9.2.2_vue@3.2.40
@@ -41,6 +46,7 @@ devDependencies:
   '@iconify/json': 2.1.120
   '@tauri-apps/cli': 1.1.1
   '@types/node': 18.8.2
+  '@types/three': 0.144.0
   '@vitejs/plugin-vue': 3.1.2_vite@3.1.4+vue@3.2.40
   eslint: 8.24.0
   markdown-it-link-attributes: 4.0.1
@@ -594,12 +600,22 @@ packages:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: true
 
+  /@types/three/0.144.0:
+    resolution: {integrity: sha512-psvEs6q5rLN50jUYZ3D4pZMfxTbdt3A243blt0my7/NcL6chaCZpHe2csbCtx0SOD9fI/XnF3wnVUAYZGqCSYg==}
+    dependencies:
+      '@types/webxr': 0.5.0
+    dev: true
+
   /@types/unist/2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
     dev: true
 
   /@types/web-bluetooth/0.0.15:
     resolution: {integrity: sha512-w7hEHXnPMEZ+4nGKl/KDRVpxkwYxYExuHOYXyzIzCDzEZ9ZCGMAewulr9IqJu2LR4N37fcnb1XVeuZ09qgOxhA==}
+
+  /@types/webxr/0.5.0:
+    resolution: {integrity: sha512-IUMDPSXnYIbEO2IereEFcgcqfDREOgmbGqtrMpVPpACTU6pltYLwHgVkrnYv0XhWEcjio9sYEfIEzgn3c7nDqA==}
+    dev: true
 
   /@typescript-eslint/eslint-plugin/5.39.0_xyciw6oqjoiiono4dhv3uhn5my:
     resolution: {integrity: sha512-xVfKOkBm5iWMNGKQ2fwX5GVgBuHmZBO1tCRwXmY5oAIsPscfwm2UADDuNB8ZVYCtpQvJK4xpjrK7jEhcJ0zY9A==}
@@ -1023,6 +1039,16 @@ packages:
       - '@vue/composition-api'
       - vue
 
+  /@vueuse/math/9.3.1_vue@3.2.40:
+    resolution: {integrity: sha512-6ojNHKlhs57NViEzTOQMAOZ0QpBxRalx4kFgIV5M+5DHAwi2AAwZpYwtI+PKKHrIvfdB3fx+pkz7pcjnh9GBDQ==}
+    dependencies:
+      '@vueuse/shared': 9.3.1_vue@3.2.40
+      vue-demi: 0.13.11_vue@3.2.40
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
   /@vueuse/metadata/9.3.0:
     resolution: {integrity: sha512-GnnfjbzIPJIh9ngL9s9oGU1+Hx/h5/KFqTfJykzh/1xjaHkedV9g0MASpdmPZIP+ynNhKAcEfA6g5i8KXwtoMA==}
 
@@ -1033,6 +1059,15 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+
+  /@vueuse/shared/9.3.1_vue@3.2.40:
+    resolution: {integrity: sha512-YFu3qcnVeu0S2L4XdQJtBpDcjz6xwqHZtTv/XRhu66/yge1XVhxskUcc7VZbX52xF9A34V6KCfwncP9YDqYFiw==}
+    dependencies:
+      vue-demi: 0.13.11_vue@3.2.40
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
 
   /acorn-jsx/5.3.2_acorn@8.8.0:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -3611,6 +3646,10 @@ packages:
   /text-table/0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
+
+  /three/0.145.0:
+    resolution: {integrity: sha512-EKoHQEtEJ4CB6b2BGMBgLZrfwLjXcSUfoI/MiIXUuRpeYsfK5aPWbYhdtIVWOH+x6X0TouldHKHBuc/LAiFzAw==}
+    dev: false
 
   /tiny-glob/0.2.9:
     resolution: {integrity: sha512-g/55ssRPUjShh+xkfx9UPDXqhckHEsHr4Vd9zX55oSdGZc/MD0m3sferOkwWtp98bv+kcVfEHtRJgBVJzelrzg==}
