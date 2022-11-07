@@ -68,6 +68,136 @@ const monochrome = () => (data.value = transform(data, [1, 0, 0, 1], (a, b, i, a
   : arr[i - (i % 4)],
 ))
 
+type Weights = [
+  number, number, number,
+  number, number, number,
+  number, number, number,
+]
+const filter = (data: MaybeRef<Uint8ClampedArray | undefined>, weights: Weights) => {
+  const value = unref(data)
+  if (!value)
+    return
+
+  const { width, height } = canvas.value
+  const size = Math.sqrt(weights.length)
+
+  const src = new Uint8ClampedArray(value)
+  const dst = new Uint8ClampedArray(value.length)
+
+  // go through the destination image pixels
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      // calculate the weighed sum of the source image pixels that
+      // fall under the convolution matrix
+      let r = 0
+      let g = 0
+      let b = 0
+      for (let convolutionY = 0; convolutionY < size; convolutionY++) {
+        for (let convolutionX = 0; convolutionX < size; convolutionX++) {
+          const sourceY = y + convolutionY - Math.floor(size / 2)
+          const sourceX = x + convolutionX - Math.floor(size / 2)
+
+          if (sourceY >= 0 && sourceY < height && sourceX >= 0 && sourceX < width) {
+            const offset = (sourceY * width + sourceX) * 4
+            const weight = weights[convolutionY * size + convolutionX]
+            r += src[offset] * weight
+            g += src[offset + 1] * weight
+            b += src[offset + 2] * weight
+          }
+        }
+      }
+      const offset = (y * width + x) * 4
+      dst[offset] = r
+      dst[offset + 1] = g
+      dst[offset + 2] = b
+      dst[offset + 3] = 255
+    }
+  }
+
+  return dst
+}
+
+const median = () => {
+  if (!data.value)
+    return
+
+  const median = (...nums: number[]) => {
+    const sorted = nums.sort((a, b) => a - b)
+    return nums.length / 2 % 1 === 0
+      ? sorted[nums.length / 2]
+      : (sorted[Math.floor(nums.length / 2)] + sorted[Math.ceil(nums.length / 2)]) / 2
+  }
+
+  const { width, height } = canvas.value
+  const size = 3
+
+  const src = new Uint8ClampedArray(data.value)
+  const dst = new Uint8ClampedArray(data.value.length)
+
+  // go through the destination image pixels
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      // calculate the weighed sum of the source image pixels that
+      // fall under the convolution matrix
+      const offset = (y * width + x) * 4
+
+      const rgb = [0, 0, 0]
+      for (let colorOffset = 0; colorOffset < 3; ++colorOffset) {
+        rgb[colorOffset] = median(
+          src[offset + colorOffset - width * 4 - 4],
+          src[offset + colorOffset - width * 4],
+          src[offset + colorOffset - width * 4 + 4],
+
+          src[offset + colorOffset - 4],
+          src[offset + colorOffset],
+          src[offset + colorOffset + 4],
+
+          src[offset + colorOffset + width * 4 - 4],
+          src[offset + colorOffset + width * 4],
+          src[offset + colorOffset + width * 4 + 4],
+        )
+      }
+
+      dst[offset] = rgb[0]
+      dst[offset + 1] = rgb[1]
+      dst[offset + 2] = rgb[2]
+      dst[offset + 3] = 255
+    }
+  }
+
+  data.value = dst
+}
+
+const avg = () => (data.value = filter(data, [
+  1 / 9, 1 / 9, 1 / 9,
+  1 / 9, 1 / 9, 1 / 9,
+  1 / 9, 1 / 9, 1 / 9,
+]))
+
+const sobelX = () => (data.value = filter(data, [
+  -1, -2, -1,
+  0, 0, 0,
+  1, 2, 1,
+]))
+
+const sobelY = () => (data.value = filter(data, [
+  -1, 0, 1,
+  -2, 0, 2,
+  -1, 0, 1,
+]))
+
+const hipass = () => (data.value = filter(data, [
+  0, -1, 0,
+  -1, 5, -1,
+  0, -1, 0,
+]))
+
+const gauss = () => (data.value = filter(data, [
+  1 / 16, 2 / 16, 1 / 16,
+  2 / 16, 4 / 16, 2 / 16,
+  1 / 16, 2 / 16, 1 / 16,
+]))
+
 const brightness = ref(0.5)
 const projectedBrightness = useProjection(brightness, [0, 1], [-255, 255])
 const dataWithBrightness = computed(() => transform(
@@ -110,16 +240,34 @@ whenever(dataWithBrightness, (data) => {
         <fw-button icon="bi-x-square-fill" secondary @click="multiply" />
         <fw-button icon="bi-slash-square-fill" secondary @click="divide" />
         <fw-button icon="bi-back" secondary @click="monochrome" />
-        <div class="pt-2">
-          <input v-model="brightness" type="range" min="0" max="1" step="any">
-          <fw-button :class="{ 'opacity-0': brightness === 0.5 }" icon="bi-arrow-counterclockwise" secondary @click="brightness = 0.5" />
-        </div>
+      </div>
+
+      <div class="pt-4">
+        <label>Brightness</label>
+        <input v-model="brightness" type="range" min="0" max="1" step="any">
+        <fw-button :class="{ 'opacity-0': brightness === 0.5 }" icon="bi-arrow-counterclockwise" secondary @click="brightness = 0.5" />
       </div>
 
       <div class="pt-4">
         <label>Filters</label>
-        <fw-button icon="bi-arrow-counterclockwise" :disabled="!canUndo" secondary @click="undo" />
-        <fw-button icon="bi-arrow-clockwise" :disabled="!canRedo" secondary @click="redo" />
+        <fw-button secondary @click="avg">
+          Averaging
+        </fw-button>
+        <fw-button secondary @click="median">
+          Median
+        </fw-button>
+        <fw-button secondary @click="sobelX">
+          Sobel X
+        </fw-button>
+        <fw-button secondary @click="sobelY">
+          Sobel Y
+        </fw-button>
+        <fw-button secondary @click="hipass">
+          High Pass Sharpen
+        </fw-button>
+        <fw-button secondary @click="gauss">
+          Gaussian Blur
+        </fw-button>
       </div>
 
       <div class="pt-4">

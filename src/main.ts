@@ -53,11 +53,6 @@ const i18n = createI18n({
 app.use(i18n)
 // app.use(Funkwhale)
 
-app.config.errorHandler = (err) => {
-  // eslint-disable-next-line no-alert
-  alert((err as Error).message)
-}
-
 // install all modules under `modules/`
 Object.values(import.meta.glob<{ install: UserModule }>('./modules/*.ts', { eager: true }))
   .forEach(i => i.install?.({ app }))
