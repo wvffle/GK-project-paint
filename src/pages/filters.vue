@@ -67,6 +67,12 @@ const monochrome = () => (data.value = transform(data, [1, 0, 0, 1], (a, b, i, a
   ? a * b
   : arr[i - (i % 4)],
 ))
+const monochrome2 = () => (data.value = transform(data, [0, 1, 0, 1], (a, b, i, arr) => i % 4 === 1
+  ? a * b
+  : i % 4 === 0
+    ? (data.value?.[i - (i % 4) + 1] ?? 0)
+    : arr[i - (i % 4)],
+))
 
 type Weights = [
   number, number, number,
@@ -129,7 +135,6 @@ const median = () => {
   }
 
   const { width, height } = canvas.value
-  const size = 3
 
   const src = new Uint8ClampedArray(data.value)
   const dst = new Uint8ClampedArray(data.value.length)
@@ -198,12 +203,12 @@ const gauss = () => (data.value = filter(data, [
   1 / 16, 2 / 16, 1 / 16,
 ]))
 
-const brightness = ref(0.5)
-const projectedBrightness = useProjection(brightness, [0, 1], [-255, 255])
+const brightness = ref(1 / 2)
+const projectedBrightness = useProjection(brightness, [0, 1], [0, 1 / 128])
 const dataWithBrightness = computed(() => transform(
   data,
   Array(4).fill(projectedBrightness.value) as [number, number, number, number],
-  (a, b) => a + b,
+  (a, b) => b * (a ** 2),
 ))
 
 whenever(dataWithBrightness, (data) => {
@@ -240,6 +245,7 @@ whenever(dataWithBrightness, (data) => {
         <fw-button icon="bi-x-square-fill" secondary @click="multiply" />
         <fw-button icon="bi-slash-square-fill" secondary @click="divide" />
         <fw-button icon="bi-back" secondary @click="monochrome" />
+        <fw-button icon="bi-back" secondary @click="monochrome2" />
       </div>
 
       <div class="pt-4">
