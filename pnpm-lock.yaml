@@ -11,6 +11,7 @@ specifiers:
   '@vitejs/plugin-vue': ^3.1.2
   '@vueuse/core': ^9.3.0
   '@vueuse/math': ^9.3.1
+  chart.js: ^4.0.1
   eslint: ^8.24.0
   markdown-it-link-attributes: ^4.0.1
   markdown-it-shiki: ^0.5.1
@@ -35,6 +36,7 @@ dependencies:
   '@tauri-apps/api': 1.1.0
   '@vueuse/core': 9.3.0_vue@3.2.40
   '@vueuse/math': 9.3.1_vue@3.2.40
+  chart.js: 4.0.1
   three: 0.145.0
   unplugin-icons: 0.14.11
   vue: 3.2.40
@@ -1260,6 +1262,11 @@ packages:
   /character-reference-invalid/1.1.4:
     resolution: {integrity: sha512-mKKUkUbhPpQlCOfIuZkvSEgktjPFIsZKRRbC6KWVEMvlzblj3i3asQv5ODsrwt0N3pHAEvjP8KTQPHkp0+6jOg==}
     dev: true
+
+  /chart.js/4.0.1:
+    resolution: {integrity: sha512-5/8/9eBivwBZK81mKvmIwTb2Pmw4D/5h1RK9fBWZLLZ8mCJ+kfYNmV9rMrGoa5Hgy2/wVDBMLSUDudul2/9ihA==}
+    engines: {pnpm: ^7.0.0}
+    dev: false
 
   /chokidar/3.5.3:
     resolution: {integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==}

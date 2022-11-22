@@ -12,6 +12,7 @@ declare module '@vue/runtime-core' {
     FwPopover: typeof import('@funkwhale/vui')['FwPopover']
     FwTab: typeof import('@funkwhale/vui')['FwTab']
     FwTabs: typeof import('@funkwhale/vui')['FwTabs']
+    FwToggle: typeof import('@funkwhale/vui')['FwToggle']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     Line: typeof import('./components/tools/Line.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
