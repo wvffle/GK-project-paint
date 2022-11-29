@@ -7,9 +7,12 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    'Fw-': typeof import('@funkwhale/vui')['Fw-']
     FwButton: typeof import('@funkwhale/vui')['FwButton']
     FwInput: typeof import('@funkwhale/vui')['FwInput']
     FwPopover: typeof import('@funkwhale/vui')['FwPopover']
+    FwS: typeof import('@funkwhale/vui')['FwS']
+    FwSwitch: typeof import('@funkwhale/vui')['FwSwitch']
     FwTab: typeof import('@funkwhale/vui')['FwTab']
     FwTabs: typeof import('@funkwhale/vui')['FwTabs']
     FwToggle: typeof import('@funkwhale/vui')['FwToggle']

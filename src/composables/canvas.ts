@@ -1,11 +1,12 @@
 import { x, y } from './mouse'
 import { parsePPM, parsePPMHeader } from './ppm'
+import { pivot } from './tools'
 
 export const canvas = ref()
 export const context = computed<CanvasRenderingContext2D>(() => canvas.value?.getContext('2d'))
 
 export interface Drawable {
-  readonly fields: Record<string, 'string' | 'number'>
+  readonly fields: Record<string, 'string' | 'number' | 'boolean' | 'points'>
   readonly path: Path2D
   readonly center: [number, number]
   tx: number
@@ -76,6 +77,16 @@ useRafFn(() => {
 
   for (const ppm of ppms)
     ctx.drawImage(ppm.canvas, 0, 0)
+
+  ctx.strokeStyle = '#0af'
+  ctx.beginPath()
+  ctx.moveTo(pivot[0], pivot[1] - 5)
+  ctx.lineTo(pivot[0], pivot[1] + 5)
+  ctx.moveTo(pivot[0] - 5, pivot[1])
+  ctx.lineTo(pivot[0] + 5, pivot[1])
+  ctx.closePath()
+  ctx.stroke()
+  ctx.strokeStyle = '#000'
 }, { immediate: true })
 
 interface SerializedDrawable {

@@ -1,4 +1,5 @@
 import type { Drawable } from './canvas'
+import type { Point } from '~/types'
 
 export interface ToolHandler<T extends Drawable> {
   category: string
@@ -38,3 +39,8 @@ export const useTools = () => {
     toolsByCategory,
   }
 }
+
+export const pivot = reactive<Point>([
+  innerHeight / 2,
+  innerWidth / 2,
+])

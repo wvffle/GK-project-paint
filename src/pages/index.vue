@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { mouseTarget } from '~/composables/mouse'
-import { useTools } from '~/composables/tools'
+import { onKeyDown } from '@vueuse/core'
+import { mouseTarget, x, y } from '~/composables/mouse'
+import { pivot, useTools } from '~/composables/tools'
 import { canvas as canvasTarget, cursor, download, exportJPEG, importJPEG, importPPM, pan, panning, pick, rgb, scale, upload } from '~/composables/canvas'
 
 const canvas = ref()
@@ -27,9 +28,9 @@ const mouseup = () => {
     return
 
   const target = tool.current
-  tool.mouseup()
+  const close = tool.mouseup()
 
-  if (target && !currentTool.value.endsWith('select')) {
+  if (target && !currentTool.value.endsWith('select') && (!currentTool.value.endsWith('ngon') || close)) {
     const selectTool = toolsByCategory.transform.find(tool => tool.endsWith('select'))
     if (selectTool) {
       currentTool.value = selectTool
@@ -69,11 +70,24 @@ const ts = computed({
   },
 })
 
+const tr = computed({
+  get: () => current.value?.current?.tr !== undefined
+    ? `${current.value?.current?.tr}`
+    : undefined,
+  set: (v: string) => {
+    if (current.value?.current)
+      current.value.current.tr = +v
+  },
+})
+
 const resetTransform = () => {
   if (current.value?.current) {
     current.value.current.tx = 0
     current.value.current.ty = 0
     current.value.current.ts = 1
+
+    if (current.value.current.tr !== undefined)
+      current.value.current.tr = 1
   }
 }
 
@@ -120,6 +134,12 @@ const downloadContext = [
     },
   },
 ]
+
+onKeyDown('p', () => {
+  pivot[0] = x.value
+  pivot[1] = y.value
+  console.log('Update pivot:', pivot)
+})
 </script>
 
 <template>
@@ -170,6 +190,23 @@ const downloadContext = [
             v-model.number="current.current[field]"
             icon="bi-123"
           />
+          <template v-if="type === 'points'">
+            <div v-for="point in current.current[field]" class="flex gap-2 mb-2">
+              <fw-input
+                v-model.number="point[0]"
+                icon="bi-arrow-left-right"
+              />
+              <fw-input
+                v-model.number="point[1]"
+                icon="bi-arrow-down-up"
+              />
+            </div>
+          </template>
+          <fw-toggle
+            v-else-if="type === 'boolean'"
+            v-model="current.current[field]"
+            icon="bi-123"
+          />
         </div>
         <hr>
         <div class="field">
@@ -193,8 +230,15 @@ const downloadContext = [
             icon="bi-arrows-angle-expand"
           />
         </div>
+        <div v-if="tr !== undefined" class="field">
+          <label>scale</label>
+          <fw-input
+            v-model="tr"
+            icon="bi-arrow-clockwise"
+          />
+        </div>
         <div
-          v-if="current.current.tx !== 0 || current.current.ty !== 0 || current.current.ts !== 1"
+          v-if="current.current.tx !== 0 || current.current.ty !== 0 || current.current.ts !== 1 || (current.current.tr !== 0 && current.current.tr !== undefined)"
           class="buttons"
         >
           <fw-button @click="current?.current?.applyTransform()">

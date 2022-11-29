@@ -3,3 +3,5 @@ import type { App } from 'vue'
 export type UserModule = (ctx: {
   app: App
 }) => void
+
+export type Point = [number, number]
